@@ -1,0 +1,51 @@
+<?php
+$rejection ='';
+if(@$_GET['rejection'])
+{
+  $rejection = $_GET['rejection'];
+}
+if($rejection == 'p_match')
+{
+  echo "PASSWORDS DO NOT MATCH";
+}
+if($rejection == 'bad_email')
+{
+  echo "EMAIL IS INVALID";
+}
+if($rejection == 'u_taken')
+{
+  echo "USERNAME IS TAKEN";
+}
+if($rejection == 'e_taken')
+{
+  echo "EMAIL ADDRESS ALREADY HAS AN ACCOUNT";
+}
+
+?>
+
+<form action="signup_ac.php" method="post">
+
+<br/>
+
+<label for="user_login">Username</label><br/>
+<input id="user_login" name="user[login]" size="20" type="text" value="" /><br/>
+
+<label for="user_password">Password</label><br/>
+<input id="user_password" name="user[password]" size="20" type="password" /><br/>
+
+<label for="user_password_confirmation">Password Confirmation</label><br/>
+<input id="user_password_confirmation" name="user[password_confirmation]" size="20" type="password" /><br/>
+
+<label for="user_email">Email</label><br/>
+
+<input id="user_email" name="user[email]" size="20" type="text" value="" /><br/>
+<label for="user_firstname">First Name </label><br/>
+
+<input id="user_firstname" name="user[firstname]" size="20" type="text" value="" /><br/>
+<label for="user_lastname">Last Name</label><br/>
+
+<input id="user_lastname" name="user[lastname]" size="20" type="text" value="" /><br/>
+
+<input name="commit" type="submit" value="Signup" />
+
+</form>

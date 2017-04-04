@@ -1,0 +1,206 @@
+<?php
+class UserException extends Exception 
+{ 
+    public $backtrace;
+    public $message;
+
+    public function __construct($message=false) {
+        if(!$message) {
+            $this->message = "No message provided";
+        }
+        else{
+            $this->message = $message;
+        }
+        $this->backtrace = debug_backtrace();
+    }
+}
+
+class User
+{
+    private $native_session_id;
+    private $logged_in;
+    private $user_id;
+    private $username;
+    private $lastname;
+    private $email;
+    private $firstname;
+    private $fullname;
+    private $permissions;
+    private $limited_permissions;
+    private $hashed_password;
+    private $authenticated;
+    
+    /*public function __construct($username, $pass) 
+    {
+        $dbh = new DB_Mysql();
+        $stmt = $dbh->prepare("SELECT *
+                                FROM users_main 
+                                WHERE username = :1: LIMIT 1");
+        $stmt->execute($_POST['username']);
+        $row = $stmt->fetch_assoc();
+        $this->username = $row['username'];
+        $this->lastname = $row['lastname'];
+        $this->email = $row['email'];
+        $this->firstname = $row['firstname'];
+        $this->fullname = $row['firstname']." ".$row['lastname'];
+        $this->user_id = $row['user_id'];
+        $this->hashed_password = $row['hashed_password'];
+        $this->authenticated = $this->comparePassword($pass, $this->hashed_password);
+        //$this->logged_in = $logged_in;
+        //$this->native_session_id = $native_session_id;
+    }
+    */
+    public function __construct($id, $logged_in, $native_session_id) 
+    {
+        $dbh = new DB_Mysql();
+        $stmt = $dbh->prepare("SELECT username, lastname, firstname, email 
+                                FROM users_main 
+                                WHERE user_id = '$id'");
+        $stmt->execute();
+        $row = $stmt->fetch_assoc();
+        $this->username = $row['username'];
+        $this->lastname = $row['lastname'];
+        $this->email = $row['email'];
+        $this->firstname = $row['firstname'];
+        $this->fullname = $row['firstname']." ".$row['lastname'];
+        $this->user_id = $id;
+        $this->logged_in = $logged_in;
+        $this->native_session_id = $native_session_id;
+    }
+    
+    function comparePassword( $password, $hash )
+    {
+        $salt = substr( $hash, 0, 8 );
+        $hashed = $this->getPasswordHash( $salt, $password );
+        return $hash == $hashed;
+    }
+    function getPasswordHash( $salt, $password )
+    {
+        return $salt . ( hash( 'whirlpool', $salt . $password ) );
+    }
+    function getAuthenticated()
+    {
+        return $this->authenticated;
+    }   
+    function getUserArray()
+    {
+    	$obj['user_id'] = $this->user_id;
+        $obj['username'] = $this->username;
+        $obj['lastname'] = $this->lastname;
+        $obj['email'] = $this->email;
+        $obj['firstname'] = $this->firstname;
+        $obj['fullname'] = $this->fullname;
+		return $obj;        
+    }
+    public function print_native()
+    {
+        echo $this->native_session_id;
+    }
+    
+    //not in use
+    public function login($strUsername, $strPlainPassword) 
+    {
+        $dbh = new DB_Mysql();
+        $stmt = $dbh->prepare("SELECT user_id, username, hashed_password, email 
+                                FROM users_main 
+                                WHERE email = '$strUsername' LIMIT 1");
+        $stmt->execute();
+        $row = $stmt->fetch_assoc();
+        if ($this->comparePassword($strPlainPassword, $row['hashed_password'])) {
+            $this->user_id = $row["user_id"];
+            $this->username = $row["username"];
+            $this->email = $row['email'];
+            $this->logged_in = true;
+            $dbh = new DB_Mysql();
+            $stmt = $dbh->prepare("UPDATE user_session 
+                                    SET logged_in = 'Y', 
+                                        session_data = '',
+                                        user_id = " . $this->user_id . "
+                                  WHERE session_id = " . $this->native_session_id);
+            $stmt->execute();
+            return(true);
+        } else {
+            return(false);
+        };
+    }
+
+    public function logOut() {
+    if ($this->logged_in == true) {
+        $dbh = new DB_Mysql();
+        $stmt = $dbh->prepare("UPDATE user_session 
+                                  SET logged_in = 'N', 
+                                      user_id = 0 
+                                WHERE session_id = " . $this->native_session_id);
+        $stmt->execute();
+        $this->logged_in = false;
+        $this->user_id = 0;
+        return(true);
+    } else {
+        return(false);
+    };
+    }
+    
+    public function GetUserID() {
+    if ($this->logged_in) {
+        return($this->user_id);
+    } else {
+        return(false);
+    };
+    }
+
+    public function GetUserName() {
+    return($this->user_name);
+    }
+    public function GetEmail() {
+    return($this->user_email);
+    }
+    public function GetUserFullName() {
+    return($this->user_fullname);
+    }
+    
+    
+    public function IsLoggedIn() {
+        return($this->logged_in);
+    }
+    public function GetAllUsers() {
+        $dbh = new DB_Mysql();
+        $stmt = $dbh->prepare("SELECT *
+                                FROM users_main 
+                                ORDER BY username");
+        $stmt->execute();
+        return $stmt->fetchall_assoc();
+    }
+    public function GetUserFromUsername($name) {
+        $dbh = new DB_Mysql();
+        $stmt = $dbh->prepare("SELECT username, user_id
+                                FROM users_main 
+                                WHERE username = :1: LIMIT 1");
+        $stmt->execute($name);
+        return $stmt->fetch_assoc();
+    }
+    public function CheckUsername($name) {
+    	$dbh = new DB_Mysql();
+    	$stmt = $dbh->prepare("SELECT username, user_id
+                                FROM users_main
+                                WHERE username = :1: LIMIT 1");
+    	$stmt->execute($name);
+    	$row = $stmt->fetch_assoc();
+    	return $row;
+    }
+    public function CheckEmail($email) {
+    	$dbh = new DB_Mysql();
+    	$stmt = $dbh->prepare("SELECT email, user_id
+                                FROM users_main
+                                WHERE email = :1: LIMIT 1");
+    	$stmt->execute($email);
+    	print_r($row);
+    	$row = $stmt->fetch_assoc();
+    	print_r($row);
+    	return $row;
+    	//throw new
+    }    
+}
+
+
+
+?>

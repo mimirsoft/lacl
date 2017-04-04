@@ -1,0 +1,30 @@
+<?php
+
+//$_POST = $_GET;
+ 
+if(isset($_POST['username']) && isset($_POST['pass']) && isset($_POST['apikey']) && $_POST['apikey']=='cde3xsw2' && isset($_POST['application']) )
+{
+	include("../../globalconstants.php");
+	include("../../Database_Mysql.class.php");
+	
+	include("../../User2.class.php");
+	//is this requestor allowed to ask for auths?
+	//$dbh = new DB_Mysql();
+	/*$stmt = $dbh->prepare("INSERT INTO roles_has_actions
+      						SET role_id = :1:,
+      						 action_id = :2:");
+    //$stmt->execute($this->id, $action_id);
+    */
+    
+	//is this person authenticated?
+	
+	
+	$USER = New User2($_POST['username'], $_POST['pass']);
+	if($USER->getAuthenticated()) 
+    {	
+		echo json_encode($USER->getUserArray());
+    }
+	
+}
+
+?>

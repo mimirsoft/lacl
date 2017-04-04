@@ -1,0 +1,47 @@
+<?php
+
+// PHP code required by both registration and validation
+ini_set("display_errors","1");
+ERROR_REPORTING(E_ALL);
+CRYPT_BLOWFISH or die ('No Blowfish found.');
+
+/*$DB_SETTINGS = array(
+		"database"=>"mysql",
+		"user"=>"foodhat",
+		"pass"=>"NRzcsrC9zEJt2RPS",
+		"dbhost"=>"localhost",
+		"dbname"=>"foodhat");
+*/
+
+$mysqli = new mysqli("localhost", "foodhat", "NRzcsrC9zEJt2RPS", "foodhat");
+
+$password = $mysqli->real_escape_string($_GET['password']);
+$email = $mysqli->real_escape_string($_GET['email']);
+
+include('../Password.class.php');
+
+$password = Password::generatePassword(18);
+echo "PASSWORD<BR/>";
+echo $password;
+echo "<BR/>";
+
+$hash = Password::createPasswordHash($password);
+echo "HASH<BR/>";
+echo $hash;
+echo "<BR/>";
+
+
+if (Password::comparePassword($password,$hash)) {
+	// Success!
+	echo "SUCCESS!!";
+	echo "<BR/>";
+	
+}
+else {
+	// Invalid credentials
+	echo "FAILURE!!";
+	echo "<BR/>";
+}
+
+
+?>

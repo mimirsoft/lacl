@@ -1,0 +1,4 @@
+The install.php file should be run once, then delete, to setup the installation
+
+This system can be run as part of  framework for a website, or as an API providing login and access control to a third party 
+website.  The API files are in the acl subdirectory under HTDOCS.  Those are the only files needed to provide API service

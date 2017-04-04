@@ -1,0 +1,94 @@
+<?php
+
+$databasehost = "localhost";
+$databasename = "Android_demo";
+$databaseusername ="********";
+$databasepassword = "********";
+
+$con = mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
+mysql_select_db($databasename) or die(mysql_error());
+
+$edit_id = 'NULL';
+$row_to_edit['person_id'] = '';
+$row_to_edit['name'] = '';
+$row_to_edit['birthday'] = '';
+$row_to_edit['favorite_color'] = '';
+
+if(@$_POST['ACTION']=='EDIT')
+{
+    $edit_id = $_POST['person_id'];
+    $query = "SELECT * FROM People WHERE person_id=".mysql_escape_string($edit_id);
+    $edh = mysql_query($query);
+    $row_to_edit = mysql_fetch_assoc($edh);
+}    
+if(@$_POST['ACTION']=='SAVE')
+{
+    $person_id = $_POST['person_id'];
+    $name = $_POST['name'];
+    $birthday = $_POST['birthday'];
+    $favorite_color = $_POST['favorite_color'];
+    $name = mysql_escape_string($name);
+    $favorite_color = mysql_escape_string($favorite_color);
+    $birthday = mysql_escape_string($birthday);
+    if($person_id != 'NULL')
+    {
+        $person_id = mysql_escape_string($person_id);
+        $query = "UPDATE People 
+        			 SET name='".$name."',
+        			 	 birthday='".$birthday."',
+				         favorite_color='".$favorite_color."'
+				   WHERE person_id=".$person_id;
+        $sth = mysql_query($query);
+        
+    }
+    else if($person_id == 'NULL')
+    {
+        $person_id = mysql_escape_string($person_id);
+        $query = "INSERT INTO People 
+        			 SET name='".$name."',
+        			 	 birthday='".$birthday."',
+				         favorite_color='".$favorite_color."'";
+        echo $query;
+        $sth = mysql_query($query);
+    }
+    
+}
+
+$query = "SELECT * FROM People";
+$sth = mysql_query($query);
+
+    
+?>
+<TABLE>
+    <form action="<?php echo $_SERVER['PHP_SELF']?>"  method=POST>
+	<TR>
+        <td><?php echo $row_to_edit['person_id']?></td>
+        <td><input type="TEXT"  name=name  value="<?php echo $row_to_edit['name']?>" ></td>
+        <td><input type="TEXT"  name=birthday  value="<?php echo $row_to_edit['birthday']?>" ></td>
+        <td><input type="TEXT"  name=favorite_color  value="<?php echo $row_to_edit['favorite_color']?>" ></td>
+        <td>
+        	<input type="HIDDEN"  name="person_id"  value="<?php echo $edit_id?>">
+    		<input type="SUBMIT"  name="ACTION"  value="SAVE">
+       	</td>
+    </TR>
+	</form>
+<?php while($r = mysql_fetch_assoc($sth)) {
+
+    ?><TR>
+	<td><?php echo $r['person_id']?></td>
+    <td><?php echo $r['name']?></td>
+    <td><?php echo $r['birthday']?></td>
+    <td><?php echo $r['favorite_color']?></td>
+    <td><form action="<?php echo $_SERVER['PHP_SELF']?>"  method=POST>
+    		<input type="HIDDEN"  name="person_id"  value="<?php echo $r['person_id']?>">
+    		<input type="SUBMIT"  name="ACTION"  value="EDIT">
+       	</form>
+   	</td>
+    </TR><?php 
+}
+?>
+<TR>
+	
+</TABLE>
+
+<?php ?>

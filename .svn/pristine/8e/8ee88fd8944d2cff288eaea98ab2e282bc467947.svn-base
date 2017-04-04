@@ -1,0 +1,8 @@
+<?php
+
+    $result = 'TUTORIAL 20 WORKED, WE GOT CONNECTION';
+    
+    print json_encode($result);
+
+
+?> 
